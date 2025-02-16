@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #
-# Make Axis camera an IP camera, dependencies:
+# Make Axis camera an IP camera, dependencies (Debian/Ubuntu and Fedora):
 # sudo apt install v4l-utils v4l2loopback-dkms gstreamer1.0-tools
 # sudo dnf install v4l-utils akmod-v4l2loopback gstreamer1-plugins-base
 #
@@ -8,7 +8,7 @@
 #
 set -eu
 
-VERSION="1.0.1"
+VERSION="1.0.2"
 
 # Set DEBUG from env:
 DEBUG="${DEBUG:-false}"
@@ -16,6 +16,7 @@ DEBUG_ENV=""
 DEBUG_ARGS=""
 
 DEFAULT_VIDEO_NUMBER=0
+V4L_LABEL="axis-ip-camera"
 VIDEO_NUMBER=${DEFAULT_VIDEO_NUMBER}
 VIDEO_DEVICE="/dev/video${DEFAULT_VIDEO_NUMBER}"
 MODULE_NAME="v4l2loopback"
@@ -36,8 +37,8 @@ find_existing_video_device() {
   if is_module_loaded; then
     # Iterate over each video device:
     for dev in /dev/video*; do
-      # Check if the device is labeled "Video-Loopback":
-      if v4l2-ctl -d "$dev" --all 2>/dev/null | grep -q "Video-Loopback"; then
+      # Check v4l label:
+      if v4l2-ctl -d "$dev" --all 2>/dev/null | grep -q $V4L_LABEL; then
         VIDEO_DEVICE="$dev"
         VIDEO_NUMBER="${dev#/dev/video}"
         echo "${FMT_GREEN}Found existing v4l2loopback device: ${VIDEO_DEVICE}${FMT_RESET}"
@@ -64,7 +65,7 @@ load_module() {
   find_existing_video_device
 
   echo "Loading $MODULE_NAME module..."
-  modprobe "$MODULE_NAME" video_nr="$VIDEO_NUMBER" card_label=Video-Loopback-"$VIDEO_NUMBER" exclusive_caps=1
+  modprobe "$MODULE_NAME" video_nr="$VIDEO_NUMBER" card_label=$V4L_LABEL-"$VIDEO_NUMBER" exclusive_caps=1
 
   if is_module_loaded; then
     echo "${FMT_GREEN}$MODULE_NAME module loaded successfully on $VIDEO_DEVICE${FMT_RESET}"
