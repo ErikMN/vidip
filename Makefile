@@ -18,23 +18,33 @@ help:
 	@echo "  install     Install $(SCRIPT_NAME) to $(SCRIPTS_INST_DIR)"
 	@echo "  uninstall   Remove $(SCRIPT_NAME) from $(SCRIPTS_INST_DIR)"
 	@echo "  lint        Lint $(SCRIPT_NAME) using shellcheck"
+	@echo "  format      Format $(SCRIPT_NAME) using shfmt"
 	@echo "  help        Show this help message"
 	@echo ""
 	@echo "Options:"
 	@echo "  PREFIX      Installation prefix (default: /usr/local)"
 
-# Check if shellcheck is installed:
+# Check if shellcheck and shfmt are installed:
 .PHONY: check
 check:
 	@command -v shellcheck >/dev/null 2>&1 || { \
 		echo >&2 "*** Please install shellcheck first"; \
 		exit 1; \
 	}
+	@command -v shfmt >/dev/null 2>&1 || { \
+		echo >&2 "*** Please install shfmt first"; \
+		exit 1; \
+	}
 
-# Lint scripts using shellcheck:
+# Lint script using shellcheck:
 .PHONY: lint
 lint: check
-	@shellcheck $(wildcard *.sh)
+	@shellcheck $(SCRIPT_FILE)
+
+# Format script using shfmt:
+.PHONY: format
+format: check
+	@shfmt -i 2 -w $(SCRIPT_FILE)
 
 # Check root access before installation or uninstallation:
 .PHONY: check_root_access
