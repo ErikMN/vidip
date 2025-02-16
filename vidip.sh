@@ -8,7 +8,12 @@
 #
 set -eu
 
-VERSION="1.0.0"
+VERSION="1.0.1"
+
+# Set DEBUG from env:
+DEBUG="${DEBUG:-false}"
+DEBUG_ENV=""
+DEBUG_ARGS=""
 
 DEFAULT_VIDEO_NUMBER=0
 VIDEO_NUMBER=${DEFAULT_VIDEO_NUMBER}
@@ -195,13 +200,22 @@ if [ ! -e "$VIDEO_DEVICE" ]; then
   exit 3
 fi
 
-# Build the GStreamer pipeline with the provided IP address:
-GSTREAMER_CMD="gst-launch-1.0 \
-  rtspsrc latency=0 location=rtsp://${CAMERA_USER}:${CAMERA_PASS}@${CAMERA_IP}/axis-media/media.amp?resolution=${RESOLUTION} ! \
+if [ "$DEBUG" = "true" ]; then
+  DEBUG_ENV="GST_DEBUG=3"
+  DEBUG_ARGS="--verbose"
+fi
+
+PIPELINE="rtspsrc latency=0 location=rtsp://${CAMERA_USER}:${CAMERA_PASS}@${CAMERA_IP}/axis-media/media.amp?resolution=${RESOLUTION} ! \
   rtph264depay ! \
   decodebin ! \
   videoconvert ! \
   v4l2sink device=${VIDEO_DEVICE}"
+
+GSTREAMER_CMD="$DEBUG_ENV gst-launch-1.0 $PIPELINE $DEBUG_ARGS"
+
+if [ "$DEBUG" = "true" ]; then
+  echo "${FMT_YELLOW}$GSTREAMER_CMD${FMT_RESET}"
+fi
 
 # Start streaming:
 echo "${FMT_BLUE}Starting video stream from IP camera at $CAMERA_IP. Press Ctrl+C to stop.${FMT_RESET}"
