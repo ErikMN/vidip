@@ -8,7 +8,7 @@
 #
 set -eu
 
-VERSION="1.0.2"
+VERSION="1.0.3"
 
 # Set DEBUG from env:
 DEBUG="${DEBUG:-false}"
@@ -228,5 +228,6 @@ sh -c "$GSTREAMER_CMD" || {
   echo " - The username and password are correct."
   echo " - The camera supports the specified resolution ($RESOLUTION)."
   echo " - The v4l2loopback module is loaded and the video device ($VIDEO_DEVICE) exists."
+  echo " - Global proxy settings"
   exit 4
 }
