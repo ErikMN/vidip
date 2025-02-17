@@ -8,7 +8,7 @@
 #
 set -eu
 
-VERSION="1.0.3"
+VERSION="1.0.4"
 
 # Set DEBUG from env:
 DEBUG="${DEBUG:-false}"
@@ -206,7 +206,11 @@ if [ "$DEBUG" = "true" ]; then
   DEBUG_ARGS="--verbose"
 fi
 
-PIPELINE="rtspsrc latency=0 location=rtsp://${CAMERA_USER}:${CAMERA_PASS}@${CAMERA_IP}/axis-media/media.amp?resolution=${RESOLUTION} ! \
+# Axis RTSP URL:
+RTSP_URL="rtsp://${CAMERA_USER}:${CAMERA_PASS}@${CAMERA_IP}/axis-media/media.amp?resolution=${RESOLUTION}"
+
+# GStreamer pipeline:
+PIPELINE="rtspsrc latency=0 location=${RTSP_URL} ! \
   rtph264depay ! \
   decodebin ! \
   videoconvert ! \
@@ -220,7 +224,14 @@ fi
 
 # Start streaming:
 echo "${FMT_BLUE}Starting video stream from IP camera at $CAMERA_IP. Press Ctrl+C to stop.${FMT_RESET}"
-sh -c "$GSTREAMER_CMD" || {
+if [ "$DEBUG" = "true" ]; then
+  sh -c "$GSTREAMER_CMD"
+else
+  sh -c "$GSTREAMER_CMD" >/dev/null 2>&1
+fi
+
+# Check GStreamer failure:
+if ! sh -c "$GSTREAMER_CMD"; then
   echo
   echo "${FMT_RED}Error: Failed to start video stream from IP camera at $CAMERA_IP.${FMT_RESET}"
   echo "Please check the following:"
@@ -230,4 +241,4 @@ sh -c "$GSTREAMER_CMD" || {
   echo " - The v4l2loopback module is loaded and the video device ($VIDEO_DEVICE) exists."
   echo " - Global proxy settings"
   exit 4
-}
+fi
