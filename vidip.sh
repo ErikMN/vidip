@@ -8,7 +8,7 @@
 #
 set -eu
 
-VERSION="1.0.4"
+VERSION="1.0.5"
 
 # Set DEBUG from env:
 DEBUG="${DEBUG:-false}"
@@ -31,6 +31,9 @@ FMT_YELLOW=$(printf '\033[33m')
 FMT_RED=$(printf '\033[31m')
 FMT_BLUE=$(printf '\033[34m')
 FMT_RESET=$(printf '\033[0m')
+
+# Trap SIGINT:
+trap 'echo "${FMT_YELLOW}\nScript interrupted. Exiting.${FMT_RESET}"; exit 0' INT
 
 # Check if v4l2loopback module is loaded and try to identify the video device number:
 find_existing_video_device() {
@@ -224,10 +227,12 @@ fi
 
 # Start streaming:
 echo "${FMT_BLUE}Starting video stream from IP camera at $CAMERA_IP. Press Ctrl+C to stop.${FMT_RESET}"
+echo "Test: https://webcamtests.com/"
 if [ "$DEBUG" = "true" ]; then
   sh -c "$GSTREAMER_CMD"
 else
-  sh -c "$GSTREAMER_CMD" >/dev/null 2>&1
+  # Only print errors:
+  sh -c "$GSTREAMER_CMD" >/dev/null
 fi
 
 # Check GStreamer failure:
