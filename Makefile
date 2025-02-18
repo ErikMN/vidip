@@ -57,12 +57,12 @@ check_root_access:
 # Install script to SCRIPTS_INST_DIR:
 .PHONY: install
 install: check_root_access
-	@echo "Installing $(SCRIPTS_INST_DIR)/$(SCRIPT_NAME)"
+	@echo "Installing $(SCRIPTS_INST_DIR)/$(SCRIPT_NAME)2"
 	@install -d "$(SCRIPTS_INST_DIR)"
-	@install -m 755 "$(SCRIPT_FILE)" "$(SCRIPTS_INST_DIR)/$(SCRIPT_NAME)"
+	@install -m 755 "$(SCRIPT_FILE)" "$(SCRIPTS_INST_DIR)/$(SCRIPT_NAME)2"
 
 # Remove script from SCRIPTS_INST_DIR:
 .PHONY: uninstall
 uninstall: check_root_access
-	@echo "Removing $(SCRIPTS_INST_DIR)/$(SCRIPT_NAME)"
+	@echo "Removing $(SCRIPTS_INST_DIR)/$(SCRIPT_NAME)2"
 	@$(RM) "$(SCRIPTS_INST_DIR)/vidip"
