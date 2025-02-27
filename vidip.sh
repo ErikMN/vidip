@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/bin/sh
 #
 # Turn an IP camera into a web camera, dependencies (Debian/Ubuntu and Fedora):
 # sudo apt install v4l-utils v4l2loopback-dkms gstreamer1.0-tools
@@ -19,7 +19,7 @@
 #
 set -eu
 
-VERSION="1.1.0"
+VERSION="1.1.1"
 
 #==============================================================================#
 
