@@ -19,7 +19,7 @@
 #
 set -eu
 
-VERSION="1.1.1"
+VERSION="1.1.2"
 
 #==============================================================================#
 
@@ -116,6 +116,16 @@ load_module() {
   if [ "$(id -u)" -ne 0 ]; then
     echo "${FMT_RED}Error: Must run as root (use sudo) to load the module.${FMT_RESET}"
     exit 1
+  fi
+
+  # Check if all device slots are filled:
+  if [ -r "/sys/module/${MODULE_NAME}/parameters/video_nr" ]; then
+    param_list="$(cat "/sys/module/${MODULE_NAME}/parameters/video_nr")"
+    if ! echo "$param_list" | grep -q "\-1"; then
+      echo "${FMT_RED}All $MODULE_NAME device slots are in use: $param_list${FMT_RESET}"
+      echo "${FMT_RED}Cannot add another $V4L_LABEL device.${FMT_RESET}"
+      exit 2
+    fi
   fi
 
   # Get a free device to use:
